@@ -4,6 +4,11 @@ const todoController = {};
 
 todoController.createTask = async (req, res) => {
   try {
+
+    if(req.body.comments_id!==undefined){
+      return res.status(400).send({ data: null,message: "_id is not required for comments" ,isSucess: false });
+    }
+
     const todo = new todoModel({
       taskName: req.body.taskName,
       comments: req.body.comments,
@@ -120,6 +125,16 @@ todoController.getAllTask = async (req, res) => {
   todoController.updateCommentTask = async (req, res) => {
     try {
 
+
+      if(req.body.idTask===undefined){
+        return res.status(400).send({ data: null,message: "idTask is required", isSucess: false });
+      }
+
+      if(req.body.comments._id===undefined || req.body.comments.content===undefined ){
+        return res.status(400).send({ data: null,message: "_id comment and content field is required", isSucess: false });
+      }
+
+
         const isExist = await todoModel.findById(req.body.idTask)
 
         if(isExist==null){
@@ -136,7 +151,7 @@ todoController.getAllTask = async (req, res) => {
 
         }
 
-        const filter = { '_id': req.body.id, 'comments._id': req.body.comments._id};
+        const filter = { '_id': req.body.idTask, 'comments._id': req.body.comments._id};
         const update =  { "$set": {'comments.$.content' : req.body.comments.content}}
 
         
